@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"/>
+<title>AID PLUS+</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ════════════════════════════════════════════════════
+   AID PLUS+ KIOSK — Full Interface v4
+   White · Red Accents · Blue Tones
+   Clean, modern, touchscreen-first
+════════════════════════════════════════════════════ */
+:root {
+  --white:    #ffffff;
+  --bg:       #f7f7f8;
+  --bg2:      #efefef;
+  --border:   #e2e2e6;
+  --border2:  #d0d0d6;
+  --text:     #0c0c0e;
+  --text2:    #48484f;
+  --text3:    #98989f;
+  --red:      #c8001a;
+  --red2:     #a8001a;
+  --red-pale: #fff2f4;
+  --red-soft: #ffd8dd;
+  --blue:     #1851e8;
+  --blue2:    #0e3cbf;
+  --blue-pale:#eef2ff;
+  --blue-soft:#c7d4fb;
+  --green:    #0a7c52;
+  --green-p:  #edfaf4;
+  --amber:    #b35000;
+  --amber-p:  #fff7ed;
+  --black:    #0c0c0e;
+  --shadow:   0 1px 3px rgba(0,0,0,.07), 0 4px 14px rgba(0,0,0,.05);
+  --shadow2:  0 2px 8px rgba(0,0,0,.10), 0 12px 32px rgba(0,0,0,.08);
+  --r: 14px; --r2: 10px; --r3: 8px;
+  --touch: 62px;
+  --f: 'Inter', sans-serif;
+  --m: 'DM Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  background: var(--white); font-family: var(--f);
+  color: var(--text); font-size: 16px;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none; -webkit-user-select: none;
+}
+
+/* ── PAGE SYSTEM ── */
+.page {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column; align-items: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s ease;
+  overflow-y: auto; overflow-x: hidden;
+}
+.page.active { opacity: 1; pointer-events: all; }
+.page::-webkit-scrollbar { width: 0; }
+
+/* ── TOPBAR ── */
+.topbar {
+  position: sticky; top: 0; left: 0; right: 0; z-index: 100;
+  width: 100%; background: var(--white);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 16px; height: 52px;
+  flex-shrink: 0;
+}
+.topbar-logo {
+  font-size: .88rem; font-weight: 800;
+  color: var(--text); letter-spacing: -.01em; flex: 1;
+}
+.topbar-logo span { color: var(--red); }
+.topbar-clock {
+  font-family: var(--m); font-size: .82rem;
+  color: var(--text2); letter-spacing: .04em;
+}
+.api-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #d0d0d0; margin-left: 10px; flex-shrink: 0;
+  transition: background .3s;
+}
+.api-dot.live { background: #22c55e; box-shadow: 0 0 0 2px #dcfce7; }
+.api-dot.dead { background: var(--red); }
+
+/* ── PROFILE CHIP ── */
+.profile-chip {
+  display: flex; align-items: center; gap: 7px;
+  background: var(--red-pale); border: 1px solid var(--red-soft);
+  border-radius: 20px; padding: 5px 12px 5px 7px;
+  cursor: pointer; transition: all .13s;
+  -webkit-tap-highlight-color: transparent;
+}
+.profile-chip:hover { background: var(--red-soft); }
+.profile-chip .pav {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--red); display: flex; align-items: center;
+  justify-content: center; font-size: .7rem; font-weight: 700;
+  color: #fff; flex-shrink: 0;
+}
+.profile-chip .pid {
+  font-family: var(--m); font-size: .65rem;
+  color: var(--red); font-weight: 500; max-width: 80px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* ── SCROLL BODY ── */
+.body {
+  width: 100%; max-width: 560px;
+  padding: 16px 14px 80px;
+  flex: 1;
+}
+
+/* ── SECTION LABEL ── */
+.sec {
+  font-size: .6rem; font-weight: 700;
+  color: var(--text3); letter-spacing: .18em;
+  text-transform: uppercase; margin: 14px 0 8px;
+}
+.divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 16px;
+  box-shadow: var(--shadow); margin-bottom: 10px;
+}
+.card-red {
+  background: var(--red-pale); border-color: var(--red-soft);
+}
+.card-blue {
+  background: var(--blue-pale); border-color: var(--blue-soft);
+}
+.card-hdr {
+  font-size: .6rem; font-weight: 700; color: var(--text3);
+  letter-spacing: .14em; text-transform: uppercase; margin-bottom: 10px;
+}
+
+/* ── HERO (wallet) ── */
+.hero {
+  background: var(--black); border-radius: 16px;
+  padding: 20px; color: #fff; position: relative; overflow: hidden;
+  margin-bottom: 10px;
+}
+.hero::after {
+  content: ''; position: absolute;
+  top: -30px; right: -30px;
+  width: 120px; height: 120px;
+  background: var(--red); border-radius: 50%; opacity: .1;
+}
+.hero-name { font-size: .72rem; font-weight: 500; opacity: .5; margin-bottom: 2px; text-transform: uppercase; letter-spacing: .1em; }
+.hero-bal { font-family: var(--m); font-size: 2.2rem; font-weight: 500; margin-bottom: 2px; }
+.hero-lbl { font-size: .68rem; opacity: .4; margin-bottom: 16px; }
+.hero-row { display: flex; gap: 0; }
+.hstat { flex: 1; border-right: 1px solid rgba(255,255,255,.1); padding-right: 14px; margin-right: 14px; }
+.hstat:last-child { border: none; padding: 0; margin: 0; }
+.hstat .hv { font-family: var(--m); font-size: .95rem; font-weight: 500; }
+.hstat .hl { font-size: .58rem; opacity: .45; letter-spacing: .08em; text-transform: uppercase; margin-top: 2px; }
+.tier { display: inline-block; background: var(--red); color: #fff; font-size: .58rem; font-weight: 700; padding: 3px 9px; border-radius: 20px; letter-spacing: .06em; }
+
+/* ── STAT ROW ── */
+.stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 10px; }
+.stat { background: var(--white); border: 1px solid var(--border); border-radius: var(--r2); padding: 11px 12px; }
+.stat .sv { font-family: var(--m); font-size: 1.05rem; font-weight: 500; }
+.stat .sl { font-size: .58rem; font-weight: 700; color: var(--text3); letter-spacing: .1em; text-transform: uppercase; margin-top: 2px; }
+.sv-r { color: var(--red); }
+.sv-b { color: var(--blue); }
+.sv-g { color: var(--green); }
+
+/* ── BUTTONS ── */
+.btn {
+  display: flex; align-items: center;
+  min-height: var(--touch);
+  width: 100%; border: none; border-radius: var(--r);
+  font-family: var(--f); font-size: .92rem; font-weight: 600;
+  cursor: pointer; padding: 0 18px; margin-bottom: 8px;
+  transition: all .12s ease; letter-spacing: .005em;
+  text-align: left;
+}
+.btn .bi { font-size: 1.2rem; margin-right: 12px; flex-shrink: 0; line-height: 1; }
+.btn .bl { flex: 1; }
+.btn .ba { opacity: .3; font-size: .9rem; margin-left: 8px; font-weight: 400; }
+.btn:active { transform: scale(.984); }
+
+.btn-r  { background: var(--red);   color: #fff; box-shadow: 0 2px 8px rgba(200,0,26,.18); }
+.btn-r:hover  { background: var(--red2); }
+.btn-ro { background: var(--red-pale); color: var(--red); border: 1.5px solid var(--red-soft); }
+.btn-ro:hover { background: var(--red-soft); }
+.btn-b  { background: var(--blue);  color: #fff; box-shadow: 0 2px 8px rgba(24,81,232,.18); }
+.btn-b:hover  { background: var(--blue2); }
+.btn-bo { background: var(--blue-pale); color: var(--blue); border: 1.5px solid var(--blue-soft); }
+.btn-bo:hover { background: var(--blue-soft); }
+.btn-k  { background: var(--black); color: #fff; }
+.btn-k:hover  { background: #1a1a1e; }
+.btn-g  { background: var(--white); color: var(--text2); border: 1px solid var(--border); }
+.btn-g:hover  { background: var(--bg); border-color: var(--border2); }
+.btn-green { background: var(--green); color: #fff; }
+.btn-green:hover { background: #0a6640; }
+
+.btn-sm { min-height: 38px; font-size: .8rem; padding: 0 14px; border-radius: var(--r2); width: auto; margin-bottom: 0; }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.g2 .btn { margin-bottom: 0; }
+.g2 .btn .bl { font-size: .85rem; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.g3 .btn { margin-bottom: 0; min-height: 56px; }
+.g3 .btn .bl { font-size: .78rem; }
+
+/* ── BACK BUTTON ── */
+.pg-hdr {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px; padding-top: 2px;
+}
+.pg-hdr h2 { font-size: 1.05rem; font-weight: 700; flex: 1; letter-spacing: -.01em; }
+.bk {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: .78rem; font-weight: 600; color: var(--red);
+  cursor: pointer; border: none; background: none;
+  font-family: var(--f); padding: 0; flex-shrink: 0;
+}
+
+/* ── FORM ── */
+.field { margin-bottom: 10px; }
+.field label {
+  display: block; font-size: .63rem; font-weight: 700;
+  color: var(--text3); letter-spacing: .12em;
+  text-transform: uppercase; margin-bottom: 5px;
+}
+.field input, .field textarea, .field select {
+  width: 100%; background: var(--bg);
+  border: 1.5px solid var(--border); border-radius: var(--r2);
+  color: var(--text); font-family: var(--f); font-size: .92rem;
+  padding: 12px 14px; outline: none;
+  transition: border-color .14s; resize: none; font-weight: 500;
+}
+.field input:focus, .field textarea:focus, .field select:focus {
+  border-color: var(--black); background: var(--white);
+  box-shadow: 0 0 0 3px rgba(12,12,14,.05);
+}
+.field textarea { min-height: 74px; }
+
+/* ── INV ITEM ── */
+.inv-item {
+  display: flex; align-items: center;
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 13px 15px;
+  margin-bottom: 8px; cursor: pointer;
+  transition: all .12s; gap: 13px; box-shadow: var(--shadow);
+}
+.inv-item:hover  { border-color: var(--border2); background: var(--bg); }
+.inv-item:active { transform: scale(.982); }
+.inv-item.mega   { border-left: 3px solid var(--blue); }
+.inv-item.mega:hover { border-color: var(--blue); background: var(--blue-pale); }
+.inv-item.no-stock { opacity: .45; cursor: not-allowed; pointer-events: none; }
+.ii-ic { font-size: 1.5rem; flex-shrink: 0; }
+.ii-info { flex: 1; min-width: 0; }
+.ii-name { font-weight: 600; font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ii-sub  { font-size: .72rem; color: var(--text3); margin-top: 2px; }
+.ii-right { text-align: right; flex-shrink: 0; }
+.ii-price { font-family: var(--m); font-weight: 500; color: var(--red); font-size: .92rem; }
+.stk {
+  font-size: .64rem; font-weight: 700; padding: 2px 7px;
+  border-radius: 10px; margin-top: 3px; display: inline-block;
+}
+.stk-ok  { background: var(--green-p); color: var(--green); }
+.stk-low { background: var(--amber-p); color: var(--amber); }
+.stk-out { background: var(--red-pale); color: var(--red); }
+.sec-sep {
+  display: flex; align-items: center; gap: 10px;
+  margin: 12px 0 8px;
+}
+.sec-sep span { font-size: .62rem; font-weight: 700; color: var(--text3); letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; }
+.sec-sep::before, .sec-sep::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ── CART ── */
+.cart-row {
+  display: flex; align-items: center;
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 11px 14px;
+  margin-bottom: 6px; gap: 10px;
+}
+.cr-name { flex: 1; font-size: .88rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cr-qty  { font-family: var(--m); font-size: .8rem; color: var(--text3); flex-shrink: 0; }
+.cr-price{ font-family: var(--m); font-weight: 600; color: var(--red); flex-shrink: 0; }
+.cr-del  { background: none; border: none; color: var(--red); font-size: .9rem; cursor: pointer; opacity: .5; flex-shrink: 0; padding: 0 4px; }
+.cr-del:hover { opacity: 1; }
+.cart-total {
+  background: var(--black); border-radius: var(--r);
+  padding: 14px 18px; display: flex; align-items: center;
+  margin: 6px 0 8px; color: #fff;
+}
+.ct-l { flex: 1; font-size: .88rem; font-weight: 600; }
+.ct-r { font-family: var(--m); font-size: 1.1rem; font-weight: 500; }
+
+/* ── ALERT ── */
+.alert {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 11px 14px; border-radius: var(--r2);
+  margin-bottom: 10px; border: 1px solid;
+}
+.alert-info   { background: var(--blue-pale); border-color: var(--blue-soft); color: var(--blue2); }
+.alert-warn   { background: var(--amber-p);  border-color: #fcd68a; color: var(--amber); }
+.alert-err    { background: var(--red-pale); border-color: var(--red-soft); color: var(--red2); }
+.alert-ok     { background: var(--green-p);  border-color: #a3e8cc; color: var(--green); }
+.alert .aic   { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+.alert .atx   { font-size: .84rem; line-height: 1.5; }
+.alert .atx strong { display: block; font-weight: 700; margin-bottom: 1px; }
+
+/* ── CONSENT ── */
+.consent {
+  background: var(--blue-pale); border: 1.5px solid var(--blue-soft);
+  border-radius: var(--r); padding: 15px 17px; margin-bottom: 10px;
+}
+.consent h3 { font-size: .62rem; font-weight: 700; color: var(--blue); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 10px; }
+.consent ul { list-style: none; }
+.consent li { font-size: .85rem; padding: 6px 0 6px 13px; border-bottom: 1px solid var(--blue-soft); position: relative; line-height: 1.5; }
+.consent li:last-child { border: none; }
+.consent li::before { content: '›'; position: absolute; left: 0; color: var(--blue); font-weight: 700; }
+.ccheck {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: var(--r2); padding: 12px 14px; margin-bottom: 10px;
+}
+.ccheck input { width: 20px; height: 20px; flex-shrink: 0; accent-color: var(--black); cursor: pointer; margin-top: 2px; }
+.ccheck label { font-size: .85rem; cursor: pointer; line-height: 1.5; font-weight: 500; }
+
+/* ── STEPS ── */
+.steps { display: flex; gap: 4px; margin-bottom: 14px; }
+.step  { flex: 1; height: 3px; border-radius: 2px; background: var(--border); }
+.step.done   { background: var(--black); }
+.step.active { background: var(--red); }
+
+/* ── NOTIFS ── */
+.notif {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 12px 14px; margin-bottom: 6px;
+}
+.notif.unread { border-left: 3px solid var(--red); background: var(--red-pale); }
+.notif .nt  { font-weight: 600; font-size: .88rem; margin-bottom: 3px; }
+.notif .nm  { font-size: .82rem; color: var(--text2); line-height: 1.4; }
+.notif .nd  { font-size: .68rem; color: var(--text3); margin-top: 5px; font-family: var(--m); }
+
+/* ── HISTORY ── */
+.hist { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 13px 15px; margin-bottom: 8px; }
+.hist-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.hist-id   { font-family: var(--m); font-size: .68rem; color: var(--text3); }
+.hist-tot  { font-family: var(--m); font-weight: 600; color: var(--red); }
+.hist-drugs{ font-size: .8rem; color: var(--text2); margin-bottom: 3px; }
+.hist-date { font-size: .68rem; color: var(--text3); font-family: var(--m); }
+
+/* ── BADGES ── */
+.bdg { display: inline-block; font-size: .62rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; letter-spacing: .04em; }
+.bdg-ok   { background: var(--green-p); color: var(--green); }
+.bdg-warn { background: var(--amber-p); color: var(--amber); }
+.bdg-err  { background: var(--red-pale); color: var(--red); }
+.bdg-info { background: var(--blue-pale); color: var(--blue); }
+.bdg-grey { background: var(--bg2); color: var(--text3); }
+
+/* ── QUEUE ITEM ── */
+.qi { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 15px; margin-bottom: 8px; }
+.qi.is-rx     { border-left: 3px solid var(--blue); }
+.qi.is-urgent { border-left: 3px solid var(--red); }
+.qi-top  { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+.qi-name { font-weight: 700; font-size: .9rem; flex: 1; }
+.qi-drugs{ font-size: .82rem; color: var(--text2); margin-bottom: 5px; }
+.qi-note { font-size: .8rem; color: var(--blue2); background: var(--blue-pale); border-radius: 6px; padding: 6px 10px; margin-bottom: 10px; line-height: 1.4; }
+.qi-btns { display: flex; gap: 8px; }
+.qi-btns button { flex: 1; min-height: 40px; border-radius: 8px; font-family: var(--f); font-size: .82rem; font-weight: 600; cursor: pointer; border: none; transition: all .1s; }
+.approve-btn { background: var(--black); color: #fff; }
+.decline-btn { background: var(--red-pale); color: var(--red); border: 1px solid var(--red-soft) !important; }
+
+/* ── DATA ROW ── */
+.drow { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); }
+.drow:last-child { border: none; }
+.dl { font-size: .84rem; color: var(--text3); }
+.dv { font-family: var(--m); font-size: .88rem; font-weight: 500; }
+
+/* ── EMPTY ── */
+.empty { text-align: center; padding: 40px 16px; color: var(--text3); }
+.empty .ei { font-size: 2.4rem; margin-bottom: 10px; }
+.empty .et { font-size: .92rem; font-weight: 600; color: var(--text2); margin-bottom: 4px; }
+.empty .es { font-size: .82rem; }
+
+/* ── SUCCESS ── */
+.sbox { text-align: center; padding: 28px 16px; }
+.sbox .sic  { font-size: 3rem; margin-bottom: 10px; }
+.sbox .stit { font-size: 1.05rem; font-weight: 700; margin-bottom: 5px; }
+.sbox .sref { font-family: var(--m); font-size: .72rem; color: var(--text3); margin-bottom: 14px; }
+.sbox .sbod { font-size: .86rem; color: var(--text2); line-height: 1.7; }
+
+/* ── TABLE ── */
+.tbl { width: 100%; border-collapse: collapse; font-size: .82rem; margin-bottom: 10px; }
+.tbl th { background: var(--bg); padding: 8px 10px; text-align: left; font-size: .6rem; font-weight: 700; color: var(--text3); letter-spacing: .1em; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+.tbl td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.tbl tr:last-child td { border: none; }
+.tbl tr:hover td { background: var(--bg); }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; bottom: 20px; left: 50%;
+  transform: translateX(-50%) translateY(70px);
+  background: var(--black); color: #fff;
+  font-size: .84rem; font-weight: 600; padding: 11px 22px;
+  border-radius: 24px; z-index: 9999; white-space: nowrap;
+  box-shadow: var(--shadow2); transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+  max-width: 88vw; text-align: center;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+#toast.ok   { background: var(--green); }
+#toast.err  { background: var(--red); }
+#toast.info { background: var(--blue); }
+
+/* ── BOTTOM SHEET MODAL ── */
+#mbg {
+  position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  z-index: 600; display: none; align-items: flex-end;
+  justify-content: center;
+}
+#mbg.show { display: flex; }
+#mbox {
+  background: var(--white); border-radius: 18px 18px 0 0;
+  padding: 24px 20px 32px; width: 100%; max-width: 560px;
+}
+#mbox h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; letter-spacing: -.01em; }
+#mbox .mb-body { font-size: .86rem; color: var(--text2); line-height: 1.6; margin-bottom: 14px; white-space: pre-line; }
+.mf { margin-bottom: 10px; }
+.mf label { display: block; font-size: .62rem; font-weight: 700; color: var(--text3); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 5px; }
+.mf input, .mf textarea, .mf select { width: 100%; background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--r2); color: var(--text); font-family: var(--f); font-size: .9rem; padding: 10px 12px; outline: none; transition: border-color .13s; resize: none; }
+.mf input:focus, .mf textarea:focus { border-color: var(--black); }
+.mf textarea { min-height: 60px; }
+.mbtns { display: flex; gap: 8px; margin-top: 8px; }
+.mbtns button { flex: 1; min-height: 50px; border-radius: 10px; font-family: var(--f); font-size: .9rem; font-weight: 700; cursor: pointer; border: none; transition: all .12s; }
+.mb-cancel { background: var(--bg2); color: var(--text2); }
+.mb-ok  { background: var(--black); color: #fff; }
+.mb-ok.red { background: var(--red); }
+
+/* ── BOTTOM NAV (customer) ── */
+#cust-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; height: 58px;
+  background: var(--white); border-top: 1px solid var(--border);
+  display: none; z-index: 200; justify-content: space-around; align-items: center; padding: 0 4px;
+}
+#cust-nav.show { display: flex; }
+.nb {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  gap: 3px; cursor: pointer; border: none; background: none;
+  font-family: var(--f); padding: 6px 4px; border-radius: 8px;
+  color: var(--text3); transition: all .12s; position: relative;
+}
+.nb.active { color: var(--red); }
+.nb .ni { font-size: 1.2rem; line-height: 1; }
+.nb .nl { font-size: .54rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.nb-badge {
+  position: absolute; top: 2px; right: 6px;
+  background: var(--red); color: #fff; font-size: .5rem; font-weight: 700;
+  border-radius: 10px; padding: 1px 5px; min-width: 14px; text-align: center;
+}
+
+/* ── LOADING ── */
+#loading {
+  position: fixed; inset: 0; background: rgba(255,255,255,.85);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 700; opacity: 0; pointer-events: none; transition: opacity .16s;
+}
+#loading.show { opacity: 1; pointer-events: all; }
+.spin { width: 32px; height: 32px; border: 2.5px solid var(--border); border-top-color: var(--red); border-radius: 50%; animation: sp .7s linear infinite; }
+@keyframes sp { to { transform: rotate(360deg); } }
+
+/* ════ SPLASH PAGE ════ */
+#pg-splash {
+  background: var(--white);
+  justify-content: center; align-items: center;
+  cursor: pointer;
+}
+.splash-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; }
+.ripple-ring {
+  position: absolute; border-radius: 50%;
+  background: rgba(200,0,26,.06);
+  animation: ripple 2.8s ease-out infinite;
+}
+.ripple-ring:nth-child(2) { animation-delay: .7s; }
+.ripple-ring:nth-child(3) { animation-delay: 1.4s; }
+@keyframes ripple {
+  0%   { width: 120px; height: 120px; opacity: .8; margin: -60px 0 0 -60px; }
+  100% { width: 300px; height: 300px; opacity: 0; margin: -150px 0 0 -150px; }
+}
+.splash-logo-wrap {
+  position: relative; width: 120px; height: 120px;
+  display: flex; align-items: center; justify-content: center;
+}
+.splash-circle {
+  width: 120px; height: 120px; border-radius: 50%;
+  background: var(--red); display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  box-shadow: 0 8px 32px rgba(200,0,26,.25);
+  z-index: 2; position: relative;
+  animation: pulse-logo 2.8s ease-in-out infinite;
+}
+@keyframes pulse-logo { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+.splash-circle .sl { font-size: 1.6rem; font-weight: 800; color: #fff; letter-spacing: -.02em; line-height: 1; }
+.splash-circle .ss { font-size: .55rem; font-weight: 600; color: rgba(255,255,255,.7); letter-spacing: .14em; margin-top: 3px; }
+.splash-tap { font-size: .72rem; font-weight: 500; color: var(--text3); letter-spacing: .1em; text-transform: uppercase; margin-top: 28px; animation: fade-tap 2.8s ease-in-out infinite; }
+@keyframes fade-tap { 0%,100%{opacity:.5} 50%{opacity:1} }
+.splash-ver { font-family: var(--m); font-size: .58rem; color: var(--border2); position: fixed; bottom: 16px; letter-spacing: .1em; }
+
+/* ════ HOME (pre-login) ════ */
+.home-clock {
+  font-family: var(--m); font-size: 2rem; font-weight: 400;
+  color: var(--text); letter-spacing: .05em; text-align: center;
+  margin: 4px 0 2px;
+}
+.home-date {
+  font-size: .72rem; color: var(--text3); text-align: center;
+  margin-bottom: 22px; letter-spacing: .06em;
+}
+.home-greeting { font-size: 1.1rem; font-weight: 700; text-align: center; margin-bottom: 6px; letter-spacing: -.01em; }
+.home-sub { font-size: .82rem; color: var(--text2); text-align: center; margin-bottom: 24px; line-height: 1.5; }
+
+/* ── ADMIN DISCREET ICON ── */
+#admin-icon {
+  position: fixed; bottom: 16px; left: 16px; z-index: 300;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--border); border: none; cursor: pointer;
+  display: none; align-items: center; justify-content: center;
+  font-size: .8rem; color: var(--text3); transition: all .2s;
+}
+#admin-icon:hover { background: var(--border2); color: var(--text2); }
+#admin-icon.show { display: flex; }
+
+/* ── PROFILE PANEL (slide-in) ── */
+#profile-panel {
+  position: fixed; top: 52px; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,.4); z-index: 400;
+  display: none; align-items: flex-start; justify-content: flex-end;
+  padding: 8px 14px 0;
+}
+#profile-panel.show { display: flex; }
+#profile-box {
+  background: var(--white); border-radius: var(--r);
+  box-shadow: var(--shadow2); width: 260px; padding: 16px;
+}
+#profile-box .pb-name { font-size: .92rem; font-weight: 700; margin-bottom: 2px; }
+#profile-box .pb-id   { font-family: var(--m); font-size: .68rem; color: var(--text3); margin-bottom: 12px; }
+.pb-btn {
+  display: flex; align-items: center; gap: 10px; padding: 10px 8px;
+  border-radius: 8px; cursor: pointer; font-size: .86rem; font-weight: 500;
+  transition: background .12s; border: none; background: none;
+  font-family: var(--f); width: 100%; text-align: left;
+}
+.pb-btn:hover { background: var(--bg); }
+.pb-btn .pbi { font-size: 1rem; }
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 4px; margin-bottom: 14px; background: var(--bg); border-radius: var(--r2); padding: 4px; }
+.tab { flex: 1; min-height: 36px; border: none; border-radius: 7px; font-family: var(--f); font-size: .8rem; font-weight: 600; cursor: pointer; background: none; color: var(--text3); transition: all .12s; }
+.tab.active { background: var(--white); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ SPLASH ══════════════ -->
+<div id="pg-splash" class="page active" onclick="enterApp()">
+  <div class="splash-wrap" style="position:relative">
+    <div class="ripple-ring" style="position:absolute;left:50%;top:50%"></div>
+    <div class="ripple-ring" style="position:absolute;left:50%;top:50%"></div>
+    <div class="ripple-ring" style="position:absolute;left:50%;top:50%"></div>
+    <div class="splash-logo-wrap">
+      <div class="splash-circle">
+        <div class="sl">AID+</div>
+        <div class="ss">NYANSA v8.0</div>
+      </div>
+    </div>
+    <div class="splash-tap">Tap to begin</div>
+  </div>
+  <div class="splash-ver">ADW-1 · BUILD 29 · <span id="sp-api">API checking…</span></div>
+</div>
+
+<!-- ══════════════ HOME (pre-login) ══════════════ -->
+<div id="pg-home" class="page">
+  <div class="topbar">
+    <div class="topbar-logo">AID <span>PLUS+</span></div>
+    <div class="topbar-clock" id="tb-clock">--:--</div>
+    <div class="api-dot" id="api-dot-home"></div>
+  </div>
+  <div class="body">
+    <div class="home-clock" id="home-clock">--:--:--</div>
+    <div class="home-date"  id="home-date">— —</div>
+    <div class="home-greeting">Welcome to Aid Plus+</div>
+    <div class="home-sub">Solar-powered pharmaceutical kiosk.<br/>Browse inventory or login to purchase.</div>
+    <button class="btn btn-g" onclick="pg('pg-inv-browse')">
+      <span class="bi">📦</span><span class="bl">Browse Inventory</span><span class="ba">›</span>
+    </button>
+    <button class="btn btn-r" onclick="pg('pg-clogin')">
+      <span class="bi">💊</span><span class="bl">Buy Medication — Login</span><span class="ba">›</span>
+    </button>
+    <div class="sec">Information</div>
+    <div class="g2">
+      <div class="card" style="padding:14px;text-align:center">
+        <div style="font-size:1.4rem;margin-bottom:4px">☀️</div>
+        <div style="font-size:.78rem;font-weight:600">Solar Powered</div>
+        <div style="font-size:.7rem;color:var(--text3);margin-top:2px">ADW-1 Hardware</div>
+      </div>
+      <div class="card" style="padding:14px;text-align:center">
+        <div style="font-size:1.4rem;margin-bottom:4px">🩺</div>
+        <div style="font-size:.78rem;font-weight:600">Teleconsult</div>
+        <div style="font-size:.7rem;color:var(--text3);margin-top:2px">Doctor on demand</div>
+      </div>
+    </div>
+    <div class="alert alert-info" style="margin-top:4px">
+      <div class="aic">ℹ️</div>
+      <div class="atx"><strong>New here?</strong>Register at the kiosk terminal to get your Customer ID and Aid Card.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ INVENTORY BROWSE (public) ══════════════ -->
+<div id="pg-inv-browse" class="page">
+  <div class="topbar">
+    <button class="bk" onclick="pg('pg-home')">← Back</button>
+    <div class="topbar-logo" style="text-align:center">Browse Inventory</div>
+    <div style="width:48px"></div>
+  </div>
+  <div class="body">
+    <div class="alert alert-info">
+      <div class="aic">ℹ️</div>
+      <div class="atx"><strong>Read only</strong>Login to add items to cart and purchase.</div>
+    </div>
+    <div id="browse-inv-list">
+      <div class="empty"><div class="spin" style="margin:0 auto"></div></div>
+    </div>
+    <button class="btn btn-r" onclick="pg('pg-clogin')">
+      <span class="bi">→</span><span class="bl">Login to Purchase</span>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════ CUSTOMER LOGIN ══════════════ -->
+<div id="pg-clogin" class="page">
+  <div class="topbar">
+    <button class="bk" onclick="pg('pg-home')">← Back</button>
+    <div class="topbar-logo" style="text-align:center">Customer Login</div>
+    <div style="width:48px"></div>
+  </div>
+  <div class="body">
+    <div class="card" style="margin-top:8px">
+      <div class="field"><label>Customer ID</label><input id="cl-id" type="text" placeholder="Your Customer ID" autocomplete="off" spellcheck="false"/></div>
+      <div class="field" style="margin-bottom:0"><label>Password</label><input id="cl-pw" type="password" placeholder="Your password"/></div>
+    </div>
+    <button class="btn btn-r" onclick="custLogin()"><span class="bi">→</span><span class="bl">Login</span></button>
+    <div class="alert alert-info">
+      <div class="aic">ℹ️</div>
+      <div class="atx"><strong>No account?</strong>Register at the kiosk terminal to receive your Customer ID and Aid Card.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ CUSTOMER MAIN ══════════════ -->
+<div id="pg-cmain" class="page">
+  <div class="topbar">
+    <div class="topbar-logo">AID <span>PLUS+</span></div>
+    <div style="flex:1"></div>
+    <div id="c-profile-chip" class="profile-chip" onclick="toggleProfile()" style="display:none">
+      <div class="pav" id="c-av">?</div>
+      <div class="pid" id="c-cid">—</div>
+    </div>
+    <div class="api-dot" id="api-dot-main" style="margin-left:8px"></div>
+  </div>
+  <div class="body">
+    <div class="hero" id="c-hero">
+      <div class="hero-name" id="c-hero-name">Loading…</div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between">
+        <div>
+          <div class="hero-bal" id="c-bal">₵—</div>
+          <div class="hero-lbl">Wallet Balance</div>
+        </div>
+        <div id="c-tier"></div>
+      </div>
+      <div class="hero-row">
+        <div class="hstat"><div class="hv" id="c-pts">—</div><div class="hl">Points</div></div>
+        <div class="hstat"><div class="hv" id="c-bonus">₵—</div><div class="hl">Bonus</div></div>
+        <div class="hstat"><div class="hv" id="c-nhis" style="font-size:.72rem">—</div><div class="hl">NHIS</div></div>
+      </div>
+    </div>
+    <div id="c-notif-strip"></div>
+    <div class="sec">Pharmacy</div>
+    <div class="g2">
+      <button class="btn btn-r" onclick="custGo('inv')"><span class="bi">💊</span><span class="bl">Buy Drugs</span></button>
+      <button class="btn btn-ro" onclick="custGo('rx')"><span class="bi">🩺</span><span class="bl">Teleconsult Rx</span></button>
+      <button class="btn btn-g" onclick="custGo('return-med')"><span class="bi">♻️</span><span class="bl">Return Medication</span></button>
+      <button class="btn btn-g" onclick="custGo('return-cup')"><span class="bi">🫙</span><span class="bl">Return Cupsule</span></button>
+    </div>
+    <div class="sec">Account</div>
+    <div class="g3">
+      <button class="btn btn-g" onclick="custGo('wallet')"><span class="bi">💳</span><span class="bl">Wallet</span></button>
+      <button class="btn btn-g" onclick="custGo('msgs')"><span class="bi">🔔</span><span class="bl">Messages</span></button>
+      <button class="btn btn-g" onclick="custGo('history')"><span class="bi">🧾</span><span class="bl">History</span></button>
+      <button class="btn btn-bo" onclick="custGo('support')"><span class="bi">🎧</span><span class="bl">Support</span></button>
+      <button class="btn btn-g" onclick="custGo('nyansa')"><span class="bi">🧠</span><span class="bl">Nyansa</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ INVENTORY (logged in) ══════════════ -->
+<div id="pg-inv" class="page">
+  <div class="topbar">
+    <button class="bk" onclick="custGo('main')">← Back</button>
+    <div class="topbar-logo" style="text-align:center">Buy Medication</div>
+    <button class="nb" id="cart-nav-btn" onclick="custGo('cart')" style="position:relative;width:48px;border:none;background:none;cursor:pointer;font-size:1.2rem">
+      🛒<span class="nb-badge" id="cart-badge2" style="display:none">0</span>
+    </button>
+  </div>
+  <div class="body">
+    <div class="alert alert-info">
+      <div class="aic">💡</div>
+      <div class="atx"><strong>Tap any item to add to cart</strong>Cart holds up to 3 drugs per 24h window. Returns free up slots.</div>
+    </div>
+    <div id="inv-list"><div class="empty"><div class="spin" style="margin:0 auto"></div></div></div>
+  </div>
+</div>
+
+<!-- ══════════════ CART ══════════════ -->
+<div id="pg-cart" class="page">
+  <div class="topbar">
+    <button class="bk" onclick="custGo('inv')">← Back</button>
+    <div class="topbar-logo" style="text-align:center">Your Cart</div>
+    <div style="width:48px"></div>
+  </div>
+  <div class="body">
+    <div id="cart-body"><div class="empty"><div class="spin" style="margin:0 auto"></div></div></div>
+  </div>
+</div>
+
+<!-- ══════════════ WALLET ══════════════ -->
+<div id="pg-wallet" class="page">
+  <div class="topbar">
+    <button class="bk" onclick="custGo('main')">← Back</button>
+    <div class="topbar-logo" style="text-align:center">Wallet</div>
+    <div style="width:48px"></div>
+  </div>
+  <div class="body">
+    <div class="hero">
+      <div class="hero-name">Available Balance</div>
+      <div class="hero-bal" id="w-bal">₵—</div>
+      <div class="hero-lbl">Bonus: <span id="w-bonus" style="font-family:var(--m)">₵—</span></div>
+    </div>
+    <div class="sec">Top Up via MoMo</div>
+    <div class="card">
+      <div class="field"><label>Amount (₵)</label><input type="number" id="topup-amt" placeholder="e.g. 20.00" min="1" step="0.5"/></div>
+      <button class="btn btn-green" style="margin-bottom:0" onclick="doTopup()"><span class="bi">📱</span><span class="bl">Initiate MoMo Payment</span></button>
+    </div>
+    <div id="topup-res"></div>
+  </div>
+</div>
+
+<!-- ══════════════ NOTIFICATIONS ══════════════ -->
+<div id="pg-msgs" class="page">
+  <div class="topbar">
+    <button class="bk" onclick="custGo('main')">← Back</button>
+    <div class="topbar-logo" style="text-align:center">Messages</div>
+    <div style="width:48px"></div>
+  </div>
+  <div class="body">
+    <div id="msgs-body"><div class="empty"><div class="spin" style="margin:0 auto"></div></div></div>
+  </div>
+</div>
+
+<!-- ══════════════ HISTORY ══════════════ -->
+<div id="pg-history" class="page">
+  <div class="topbar">
+    <button class="bk" onclick="custGo('main')">← Back</button>
+    <div class="topbar-logo" style="text-align:center">Transaction History</div>
+    <div style="width:48px"></div>
+  </div>
+  <div class="body">
+    <div id="hist-body"><div class="empty"><div class="spin" style="margin:0 auto"></div></div></div>
+  </div>
+</div>
+
+<!-- ══════════════ RX / TELECONSULT ══════════════ -->
+<div id="pg-rx" class="page">
+  <div class="topbar">
+    <button class="bk" onclick="custGo('main')">← Back</button>
+    <div class="topbar-logo" style="text-align:center">Request Prescription</div>
+    <div style="width:48px"></div>
+  </div>
+  <div class="body">
+    <div class="steps"><div class="step active" id="stp1"></div><div class="step" id="stp2"></div><div class="step" id="stp3"></div></div>
+    <div class="alert alert-warn"><div class="aic">⚠️</div><div class="atx"><strong>Not an emergency service.</strong>For emergencies call 193 or go to the nearest hospital immediately.</div></div>
+    <div id="rx-s1">
+      <div class="field"><label>Step 1 — Describe condition or symptoms</label><textarea id="rx-cond" placeholder="e.g. Recurring headache for 3 days, requesting Paracetamol…"></textarea></div>
+      <div class="field"><label>Medication(s) requested — optional</label><input type="text" id="rx-drugs" placeholder="e.g. Amoxicillin 500mg, Metformin 500mg"/></div>
+      <button class="btn btn-k" onclick="rxNext()"><span class="bi">→</span><span class="bl">Continue to Consent</span></button>
+    </div>
+    <div id="rx-s2" style="display:none">
+      <div class="consent"><h3>Patient Informed Consent — Teleconsult Rx</h3><ul>
+        <li>The information I provided is accurate to the best of my knowledge.</li>
+        <li>I consent to review by a licensed Aid Plus doctor or pharmacist.</li>
+        <li>A prescription may be issued or declined based on clinical judgement.</li>
+        <li>My data will be processed per the Aid Plus Privacy Policy.</li>
+        <li>This is not an emergency service. For emergencies I will call 193.</li>
+      </ul></div>
+      <div class="ccheck"><input type="checkbox" id="rx-con"/><label for="rx-con">I have read and understood the above. I give my informed consent to proceed.</label></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-g" onclick="rxBack()" style="flex:1;margin-bottom:0;min-height:52px"><span class="bl" style="text-align:center">← Back</span></button>
+        <button class="btn btn-r" onclick="rxSubmit()" style="flex:2;margin-bottom:0;min-height:52px"><span class="bl">Submit Request</span><span class="ba">›</span></button>
+      </div>
+    </div>
+    <div id="rx-s3" style="display:none">
+      <div class="sbox"><div class="sic">✅</div><div class="stit">Request Submitted</div>
+        <div class="sref" id="rx-ref">—</div>
+        <div class="sbod">A licensed doctor or pharmacist will review your request.<br/>You will receive a notification when complete.<br/>Keep your Aid Card nearby.</div>
+      </div>
+      <button class="btn btn-g" style="justify-content:center" onclick="custGo('main')"><span class="bl" style="text-align:center">Return to Home</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SUPPORT ══════════════ -->
+<div id="pg-support" class="page">
+  <div class="topbar">
+    <button class="bk" onclick="custGo('main')">← Back</button>
+    <div class="topbar-logo" style="text-align:center">Support</div>
+    <div style="width:48px"></div>
+  </div>
+  <div class="body">
+    <button class="btn btn-r" onclick="openNewTicket()"><span class="bi">✉️</span><span class="bl">Open Support Ticket</span></button>
+    <div class="sec">My Tickets</div>
+    <div id="support-body"><div class="empty"><div class="spin" style="margin:0 auto"></div></div></div>
+  </div>
+</div>
+
+<!-- ══════════════ RETURN MEDICATION ══════════════ -->
+<div id="pg-return-med" class="page">
+  <div class="topbar">
+    <button class="bk" onclick="custGo('main')">← Back</button>
+    <div class="topbar-logo" style="text-align:center">Return Medication</div>
+    <div style="width:48px"></div>
+  </div>
+  <div class="body">
+    <div class="alert alert-info"><div class="aic">⏱️</div><div class="atx"><strong>Return window: 10 minutes</strong>Returns accepted within 10 min of purchase. 5% handling fee applies.</div></div>
+    <div id="ret-med-body"><div class="empty"><div class="ei">♻️</div><div class="et">No recent purchases</div><div class="es">Buy medication first to see return options.</div></div></div>
+  </div>
+</div>
+
+<!-- ══════════════ RETURN CUPSULE ══════════════ -->
+<div id="pg-return-cup" class="page">
+  <div class="topbar">
+    <button class="bk" onclick="custGo('main')">← Back</button>
+    <div class="topbar-logo" style="text-align:center">Return Cupsule</div>
+    <div style="width:48px"></div>
+  </div>
+  <div class="body">
+    <div class="alert alert-info"><div class="aic">🫙</div><div class="atx"><strong>Cupsule Return</strong>Return empty Cupsule containers for recycling. Earns loyalty points.</div></div>
+    <div class="card">
+      <div class="field"><label>Cupsule Barcode / QR Code</label><input type="text" id="cup-barcode" placeholder="Scan or enter barcode…" autocomplete="off"/></div>
+      <button class="btn btn-green" style="margin-bottom:0" onclick="submitCupsuleReturn()"><span class="bi">🫙</span><span class="bl">Submit Return</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ NYANSA ══════════════ -->
+<div id="pg-nyansa" class="page">
+  <div class="topbar">
+    <button class="bk" onclick="custGo('main')">← Back</button>
+    <div class="topbar-logo" style="text-align:center">Nyansa Health Review</div>
+    <div style="width:48px"></div>
+  </div>
+  <div class="body">
+    <div class="card-blue card"><div class="card-hdr">Nyansa Health Intelligence</div>
+      <div style="font-size:.86rem;line-height:1.6">Nyansa analyses your purchase history to provide personalised health insights, flag potential drug interactions, and recommend wellness checks.</div>
+    </div>
+    <button class="btn btn-b" onclick="toast('Nyansa health review — connect API for personalised insights','info')"><span class="bi">🧠</span><span class="bl">Run Nyansa Review</span></button>
+  </div>
+</div>
+
+<!-- ══════════════ ADMIN LOGIN (discreet) ══════════════ -->
+<div id="pg-alogin" class="page">
+  <div class="topbar">
+    <button class="bk" onclick="pg('pg-home')">← Back</button>
+    <div class="topbar-logo" style="text-align:center">Staff Access</div>
+    <div style="width:48px"></div>
+  </div>
+  <div class="body" style="max-width:400px">
+    <div style="height:8px"></div>
+    <div class="card">
+      <div class="field"><label>Password</label><input id="al-pw" type="password" placeholder="Enter admin password" autocomplete="off"/></div>
+    </div>
+    <button class="btn btn-k" onclick="adminLogin()"><span class="bl" style="text-align:center;flex:1">Login</span></button>
+    <div style="height:6px"></div>
+    <button class="btn btn-g" onclick="doctorLogin()"><span class="bl" style="text-align:center;flex:1">Doctor / Pharmacist Login</span></button>
+  </div>
+</div>
+
+<!-- ══════════════ ADMIN DASHBOARD ══════════════ -->
+<div id="pg-admin" class="page">
+  <div class="topbar">
+    <div class="topbar-logo">AID <span>PLUS+</span> <span style="font-weight:400;font-size:.72rem;color:var(--text3)">Admin</span></div>
+    <button class="bk" onclick="adminLogout()" style="color:var(--text3)">Logout</button>
+  </div>
+  <div class="body">
+    <div class="stats">
+      <div class="stat"><div class="sv sv-r" id="ad-rev">—</div><div class="sl">Today Rev.</div></div>
+      <div class="stat"><div class="sv" id="ad-ls">—</div><div class="sl">Low Stock</div></div>
+      <div class="stat"><div class="sv sv-b" id="ad-q">—</div><div class="sl">Consult Q</div></div>
+    </div>
+    <div class="sec">Clinical</div>
+    <button class="btn btn-r" onclick="adPg('queue')"><span class="bi">🩺</span><span class="bl">Teleconsult Queue</span><span class="ba">›</span></button>
+    <button class="btn btn-ro" onclick="adPg('prescriptions')"><span class="bi">📋</span><span class="bl">[RX] Prescriptions</span><span class="ba">›</span></button>
+    <button class="btn btn-g"  onclick="adPg('tickets')"><span class="bi">🎧</span><span class="bl">Support Tickets</span><span class="ba">›</span></button>
+    <div class="sec">Inventory</div>
+    <button class="btn btn-k" onclick="adPg('inventory')"><span class="bi">📦</span><span class="bl">Full Inventory — Upper &amp; Lower</span><span class="ba">›</span></button>
+    <button class="btn btn-g" onclick="adPg('restock')"><span class="bi">🔄</span><span class="bl">Restock Orders</span><span class="ba">›</span></button>
+    <div class="sec">Intelligence &amp; Analytics</div>
+    <div class="g2">
+      <button class="btn btn-g" onclick="adPg('insights')"><span class="bi">🧠</span><span class="bl">Nyansa Insights</span></button>
+      <button class="btn btn-g" onclick="adPg('analytics')"><span class="bi">📊</span><span class="bl">Analytics</span></button>
+    </div>
+    <div class="sec">People</div>
+    <button class="btn btn-g" onclick="adPg('customers')"><span class="bi">👥</span><span class="bl">Customers</span><span class="ba">›</span></button>
+    <div class="sec">Platform</div>
+    <div class="g2">
+      <button class="btn btn-g" onclick="adPg('hardware')"><span class="bi">⚙️</span><span class="bl">Hardware</span></button>
+      <button class="btn btn-g" onclick="adPg('ota')"><span class="bi">📡</span><span class="bl">OTA Updates</span></button>
+      <button class="btn btn-g" onclick="adPg('reports')"><span class="bi">📑</span><span class="bl">Reports</span></button>
+      <button class="btn btn-bo" onclick="adPg('pdms')"><span class="bi">📝</span><span class="bl">[P] PDMS Log</span></button>
+    </div>
+    <div style="height:10px"></div>
+  </div>
+</div>
+
+<!-- ══════════════ ADMIN SUB-PAGES ══════════════ -->
+<div id="pg-ad-sub" class="page">
+  <div class="topbar">
+    <button class="bk" onclick="adPg('dashboard')">← Back</button>
+    <div class="topbar-logo" id="ad-sub-title" style="text-align:center">—</div>
+    <button class="btn btn-g btn-sm" id="ad-sub-refresh" onclick="adSubRefresh()">↻</button>
+  </div>
+  <div class="body" id="ad-sub-body"></div>
+</div>
+
+<!-- ════ PROFILE PANEL ════ -->
+<div id="profile-panel" onclick="if(event.target===this)closeProfile()">
+  <div id="profile-box">
+    <div class="pb-name" id="pb-name">—</div>
+    <div class="pb-id"   id="pb-id">—</div>
+    <div class="divider"></div>
+    <button class="pb-btn" onclick="closeProfile();toast('Change password — use kiosk terminal','info')"><span class="pbi">🔑</span>Change Password</button>
+    <button class="pb-btn" onclick="closeProfile();toast('Profile settings — coming soon','info')"><span class="pbi">⚙️</span>Profile Settings</button>
+    <button class="pb-btn" onclick="closeProfile();custGo('msgs')"><span class="pbi">🔔</span>My Notifications</button>
+    <div class="divider"></div>
+    <button class="pb-btn" onclick="custLogout()" style="color:var(--red)"><span class="pbi">🚪</span>Logout</button>
+  </div>
+</div>
+
+<!-- ADMIN DISCREET ICON -->
+<button id="admin-icon" onclick="pg('pg-alogin')" title="Staff">⚙</button>
+
+<!-- BOTTOM NAV -->
+<div id="cust-nav">
+  <button class="nb active" id="nb-home" onclick="custGo('main')"><span class="ni">🏠</span><span class="nl">Home</span></button>
+  <button class="nb" id="nb-inv"  onclick="custGo('inv')"><span class="ni">💊</span><span class="nl">Shop</span></button>
+  <button class="nb" id="nb-cart" onclick="custGo('cart')" style="position:relative">
+    <span class="ni">🛒</span><span class="nl">Cart</span>
+    <span class="nb-badge" id="cart-badge" style="display:none">0</span>
+  </button>
+  <button class="nb" id="nb-wallet" onclick="custGo('wallet')"><span class="ni">💳</span><span class="nl">Wallet</span></button>
+  <button class="nb" id="nb-msgs" onclick="custGo('msgs')" style="position:relative">
+    <span class="ni">🔔</span><span class="nl">Alerts</span>
+    <span class="nb-badge" id="notif-badge" style="display:none">0</span>
+  </button>
+</div>
+
+<div id="toast"></div>
+<div id="mbg"><div id="mbox">
+  <h3 id="mtitle"></h3>
+  <div class="mb-body" id="mbody"></div>
+  <div id="mfields"></div>
+  <div class="mbtns"><button class="mb-cancel" onclick="closeModal()">Cancel</button><button class="mb-ok" id="mbok" onclick="modalOk()">Confirm</button></div>
+</div></div>
+<div id="loading"><div class="spin"></div></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  AID PLUS+ FULL KIOSK — Build 29
+//  Connect: Start API server in Python, then open this file in Chrome
+//  API base: http://localhost:8080
+// ══════════════════════════════════════════════════════
+
+const API = 'http://localhost:8080';
+let TOKEN = null, ROLE = null, CID = null, CNAME = null;
+let cartCount = 0, modalCb = null, adCurrentSection = null;
+
+// ── CLOCK & DATE ──────────────────────────────────────
+function tickClock(){
+  const n = new Date();
+  const p = x => String(x).padStart(2,'0');
+  const t = p(n.getHours())+':'+p(n.getMinutes())+':'+p(n.getSeconds());
+  const t2= p(n.getHours())+':'+p(n.getMinutes());
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const d = days[n.getDay()]+', '+n.getDate()+' '+months[n.getMonth()]+' '+n.getFullYear();
+  const hc=document.getElementById('home-clock'); if(hc) hc.textContent=t;
+  const hd=document.getElementById('home-date');  if(hd) hd.textContent=d;
+  const tc=document.getElementById('tb-clock');   if(tc) tc.textContent=t2;
+}
+tickClock(); setInterval(tickClock,1000);
+
+// ── PAGE ROUTER ───────────────────────────────────────
+function pg(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const el=document.getElementById(id);
+  if(el){el.classList.add('active');el.scrollTop=0;}
+  // Show admin icon on home page only
+  const ai=document.getElementById('admin-icon');
+  if(ai) ai.className = (id==='pg-home'||id==='pg-inv-browse') ? 'show' : '';
+}
+
+// ── TOAST ─────────────────────────────────────────────
+let TT;
+function toast(msg,style=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className='show'+(style?' '+style:'');
+  clearTimeout(TT); TT=setTimeout(()=>el.className='',3200);
+}
+
+// ── LOADING ───────────────────────────────────────────
+const ld=v=>document.getElementById('loading').classList.toggle('show',v);
+
+// ── API FETCH ─────────────────────────────────────────
+async function api(path, method='GET', body=null){
+  const opts = { method, headers:{'Content-Type':'application/json'} };
+  if(TOKEN) opts.headers['Authorization'] = 'Bearer '+TOKEN;
+  if(body)  opts.body = JSON.stringify(body);
+  const r = await fetch(API+path, opts);
+  const d = await r.json();
+  if(!r.ok) throw new Error(d.error || 'Error '+r.status);
+  return d;
+}
+
+// ── API STATUS ────────────────────────────────────────
+async function pingApi(){
+  try{
+    const d = await api('/api/health');
+    ['api-dot-home','api-dot-main'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.className='api-dot live';
+    });
+    const sp=document.getElementById('sp-api');
+    if(sp) sp.textContent='API LIVE · v'+d.version;
+  }catch{
+    ['api-dot-home','api-dot-main'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.className='api-dot dead';
+    });
+    const sp=document.getElementById('sp-api');
+    if(sp) sp.textContent='API OFFLINE — start from Python terminal';
+  }
+}
+pingApi(); setInterval(pingApi,20000);
+
+// ── SPLASH ────────────────────────────────────────────
+function enterApp(){
+  // Load public inventory in background
+  loadPublicInventory();
+  pg('pg-home');
+}
+
+// ── PUBLIC INVENTORY ──────────────────────────────────
+async function loadPublicInventory(){
+  const el=document.getElementById('browse-inv-list');
+  if(!el) return;
+  try{
+    // Public browse requires a guest token — try with no auth
+    // If API requires auth, show friendly message
+    const d = await api('/api/mobile/inventory');
+    el.innerHTML = renderInventoryList(d.inventory||[]);
+  }catch{
+    el.innerHTML='<div class="alert alert-info"><div class="aic">🔐</div><div class="atx"><strong>Login required to view inventory</strong>The inventory is available after login to ensure accurate stock data.</div></div>';
+  }
+}
+
+function renderInventoryList(items){
+  if(!items.length) return '<div class="empty"><div class="ei">📦</div><div class="et">No inventory data</div></div>';
+  const upper=items.filter(i=>!i.is_mega);
+  const lower=items.filter(i=>i.is_mega);
+  let html='';
+  const renderItem=(i,onclick)=>{
+    const s=i.stock_level||0;
+    const cls=s===0?'stk-out':s<10?'stk-low':'stk-ok';
+    const lbl=s===0?'Out of stock':s<10?s+' — Low':s+' in stock';
+    return `<div class="inv-item ${i.is_mega?'mega':''} ${s===0?'no-stock':''}" ${onclick||''}>
+      <div class="ii-ic">💊</div>
+      <div class="ii-info">
+        <div class="ii-name">${i.name}</div>
+        <div class="ii-sub">Shelf ${i.shelf}${i.unit?' · '+i.unit:''}</div>
+      </div>
+      <div class="ii-right">
+        <div class="ii-price">₵${Number(i.price||0).toFixed(2)}</div>
+        <span class="stk ${cls}">${lbl}</span>
+      </div>
+    </div>`;
+  };
+  if(upper.length){
+    html+='<div class="sec-sep"><span>Upper Section — Capsules &amp; Pills</span></div>';
+    html+=upper.map(i=>renderItem(i,i.stock_level>0?`onclick="addToCart(${i.shelf})"`:'')).join('');
+  }
+  if(lower.length){
+    html+='<div class="sec-sep"><span>Lower Section — Liquid &amp; Mega Units</span></div>';
+    html+=lower.map(i=>renderItem(i,i.stock_level>0?`onclick="addToCart(${i.shelf})"`:'')).join('');
+  }
+  return html;
+}
+
+// ══════════════════════════════════════════════════════
+//  CUSTOMER AUTH
+// ══════════════════════════════════════════════════════
+async function custLogin(){
+  const id=document.getElementById('cl-id').value.trim();
+  const pw=document.getElementById('cl-pw').value.trim();
+  if(!id||!pw){toast('Enter your Customer ID and password','err');return;}
+  ld(true);
+  try{
+    const d=await api('/api/auth/login','POST',{id,password:pw});
+    TOKEN=d.token; ROLE=d.role; CID=id; CNAME=d.name||id;
+    document.getElementById('cl-pw').value='';
+    document.getElementById('cust-nav').classList.add('show');
+    // Show profile chip
+    const chip=document.getElementById('c-profile-chip');
+    chip.style.display='flex';
+    document.getElementById('c-av').textContent=(CNAME||id)[0].toUpperCase();
+    document.getElementById('c-cid').textContent=id;
+    document.getElementById('pb-name').textContent=CNAME||id;
+    document.getElementById('pb-id').textContent='ID: '+id;
+    await loadCustomerHome();
+    pg('pg-cmain'); setNav('home');
+  }catch(e){toast(e.message,'err');}
+  ld(false);
+}
+
+function custLogout(){
+  TOKEN=null; ROLE=null; CID=null; CNAME=null; cartCount=0;
+  document.getElementById('cust-nav').classList.remove('show');
+  document.getElementById('c-profile-chip').style.display='none';
+  document.getElementById('cart-badge').style.display='none';
+  document.getElementById('notif-badge').style.display='none';
+  closeProfile();
+  pg('pg-home');
+  toast('Logged out');
+}
+
+// ── PROFILE PANEL ─────────────────────────────────────
+function toggleProfile(){ document.getElementById('profile-panel').classList.toggle('show'); }
+function closeProfile(){  document.getElementById('profile-panel').classList.remove('show'); }
+
+// ── CUSTOMER NAVIGATION ───────────────────────────────
+function custGo(sec){
+  closeProfile();
+  const map={
+    main:'pg-cmain', inv:'pg-inv', cart:'pg-cart',
+    wallet:'pg-wallet', msgs:'pg-msgs', history:'pg-history',
+    rx:'pg-rx', support:'pg-support',
+    'return-med':'pg-return-med','return-cup':'pg-return-cup',
+    nyansa:'pg-nyansa'
+  };
+  if(!map[sec]) return;
+  pg(map[sec]);
+  const navId=({inv:'inv',cart:'cart',wallet:'wallet',msgs:'msgs'})[sec]||'home';
+  setNav(navId);
+  if(sec==='main')         loadCustomerHome();
+  if(sec==='inv')          loadInventory();
+  if(sec==='cart')         loadCart();
+  if(sec==='wallet')       loadWallet();
+  if(sec==='msgs')         loadNotifs();
+  if(sec==='history')      loadHistory();
+  if(sec==='rx')           rxReset();
+  if(sec==='support')      loadSupport();
+  if(sec==='return-med')   loadReturnMed();
+}
+
+function setNav(id){
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('nb-'+id); if(el) el.classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════
+//  CUSTOMER HOME
+// ══════════════════════════════════════════════════════
+async function loadCustomerHome(){
+  try{
+    const d=await api('/api/mobile/home');
+    CNAME=d.name;
+    document.getElementById('c-hero-name').textContent='Hello, '+d.name+'!';
+    document.getElementById('c-bal').textContent='₵'+Number(d.wallet_balance||0).toFixed(2);
+    document.getElementById('c-pts').textContent=d.loyalty_points||0;
+    document.getElementById('c-bonus').textContent='₵'+Number(d.bonus||0).toFixed(2);
+    document.getElementById('c-nhis').textContent=d.nhis_active?'Active':'—';
+    document.getElementById('c-tier').innerHTML=`<div class="tier">${d.wallet_tier||'G0'}</div>`;
+    document.getElementById('pb-name').textContent=d.name;
+    document.getElementById('c-av').textContent=d.name[0].toUpperCase();
+    // Notif badge
+    if(d.unread_count>0){
+      const b=document.getElementById('notif-badge');
+      b.textContent=d.unread_count; b.style.display='block';
+    }
+    // Strip
+    const strip=document.getElementById('c-notif-strip');
+    const unread=(d.notifications||[]).filter(n=>!n.is_read);
+    strip.innerHTML=unread.length?`<div class="alert alert-info"><div class="aic">🔔</div><div class="atx"><strong>${unread.length} new message${unread.length>1?'s':''}</strong>${unread[0].title}</div></div>`:'';
+    loadCartCount();
+  }catch(e){toast('Home: '+e.message,'err');}
+}
+
+async function loadCartCount(){
+  try{
+    const d=await api('/api/mobile/cart');
+    cartCount=d.count||0;
+    const b=document.getElementById('cart-badge');
+    const b2=document.getElementById('cart-badge2');
+    if(cartCount>0){
+      b.textContent=cartCount; b.style.display='block';
+      if(b2){b2.textContent=cartCount;b2.style.display='block';}
+    }else{
+      b.style.display='none';
+      if(b2) b2.style.display='none';
+    }
+  }catch{}
+}
+
+// ══════════════════════════════════════════════════════
+//  INVENTORY
+// ══════════════════════════════════════════════════════
+async function loadInventory(){
+  const el=document.getElementById('inv-list');
+  el.innerHTML='<div class="empty"><div class="spin" style="margin:0 auto"></div></div>';
+  try{
+    const d=await api('/api/mobile/inventory');
+    el.innerHTML=renderInventoryList(d.inventory||[]);
+  }catch(e){el.innerHTML=`<div class="alert alert-err"><div class="aic">⚠️</div><div class="atx">${e.message}</div></div>`;}
+}
+
+async function addToCart(shelf){
+  try{
+    await api('/api/mobile/cart','POST',{shelf:parseInt(shelf),qty:1});
+    cartCount++;
+    const b=document.getElementById('cart-badge');
+    const b2=document.getElementById('cart-badge2');
+    b.textContent=cartCount; b.style.display='block';
+    if(b2){b2.textContent=cartCount;b2.style.display='block';}
+    toast('Added to cart ✓','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+// ══════════════════════════════════════════════════════
+//  CART
+// ══════════════════════════════════════════════════════
+async function loadCart(){
+  const el=document.getElementById('cart-body');
+  el.innerHTML='<div class="empty"><div class="spin" style="margin:0 auto"></div></div>';
+  try{
+    const d=await api('/api/mobile/cart');
+    const cart=d.cart||[]; const total=d.total||0;
+    cartCount=d.count||0;
+    if(!cart.length){
+      document.getElementById('cart-badge').style.display='none';
+      const b2=document.getElementById('cart-badge2'); if(b2) b2.style.display='none';
+      el.innerHTML='<div class="empty"><div class="ei">🛒</div><div class="et">Cart is empty</div><div class="es">Tap items in Shop to add them.</div></div>';
+      return;
+    }
+    let html=cart.map(i=>`
+      <div class="cart-row">
+        <span class="cr-name">${i.name||i.drug_name||'—'}</span>
+        <span class="cr-qty">×${i.qty||1}</span>
+        <span class="cr-price">₵${Number(i.subtotal||i.price||0).toFixed(2)}</span>
+        <button class="cr-del" onclick="removeFromCart(${i.shelf||i.shelf_num||0})">✕</button>
+      </div>`).join('');
+    html+=`<div class="cart-total"><span class="ct-l">Total</span><span class="ct-r">₵${Number(total).toFixed(2)}</span></div>`;
+    html+=`<button class="btn btn-r" onclick="doCheckout()"><span class="bi">💳</span><span class="bl">Checkout — ₵${Number(total).toFixed(2)}</span></button>`;
+    html+=`<button class="btn btn-g" onclick="clearCart()"><span class="bi">🗑️</span><span class="bl">Clear Cart</span></button>`;
+    el.innerHTML=html;
+  }catch(e){el.innerHTML=`<div class="alert alert-err"><div class="aic">⚠️</div><div class="atx">${e.message}</div></div>`;}
+}
+
+async function removeFromCart(shelf){
+  try{
+    await api('/api/mobile/cart','DELETE',{shelf:parseInt(shelf)});
+    cartCount=Math.max(0,cartCount-1);
+    updateCartBadge();
+    loadCart(); toast('Removed from cart');
+  }catch(e){toast(e.message,'err');}
+}
+
+async function clearCart(){
+  try{
+    const d=await api('/api/mobile/cart');
+    for(const i of d.cart||[]) await api('/api/mobile/cart','DELETE',{shelf:i.shelf||i.shelf_num});
+    cartCount=0; updateCartBadge(); loadCart(); toast('Cart cleared');
+  }catch(e){toast(e.message,'err');}
+}
+
+async function doCheckout(){
+  ld(true);
+  try{
+    const d=await api('/api/mobile/checkout','POST');
+    cartCount=0; updateCartBadge();
+    toast('✅ Purchase complete! Ref: '+d.transaction_id.slice(0,10),'ok');
+    loadCart(); setTimeout(loadCustomerHome,800);
+  }catch(e){toast(e.message,'err');}
+  ld(false);
+}
+
+function updateCartBadge(){
+  const b=document.getElementById('cart-badge');
+  const b2=document.getElementById('cart-badge2');
+  if(cartCount>0){
+    b.textContent=cartCount; b.style.display='block';
+    if(b2){b2.textContent=cartCount; b2.style.display='block';}
+  }else{
+    b.style.display='none'; if(b2) b2.style.display='none';
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  WALLET / TOPUP
+// ══════════════════════════════════════════════════════
+async function loadWallet(){
+  try{
+    const d=await api('/api/mobile/home');
+    document.getElementById('w-bal').textContent='₵'+Number(d.wallet_balance||0).toFixed(2);
+    document.getElementById('w-bonus').textContent='₵'+Number(d.bonus||0).toFixed(2);
+  }catch(e){toast(e.message,'err');}
+}
+
+async function doTopup(){
+  const amt=parseFloat(document.getElementById('topup-amt').value);
+  if(!amt||amt<1){toast('Enter a valid amount (min ₵1)','err');return;}
+  ld(true);
+  try{
+    const d=await api('/api/mobile/wallet/topup','POST',{amount:amt});
+    document.getElementById('topup-res').innerHTML=`<div class="alert alert-ok"><div class="aic">📱</div><div class="atx"><strong>MoMo Payment Initiated</strong>${d.instructions}<br/>Reference: <span style="font-family:var(--m)">${d.momo_prompt}</span></div></div>`;
+    document.getElementById('topup-amt').value='';
+  }catch(e){toast(e.message,'err');}
+  ld(false);
+}
+
+// ══════════════════════════════════════════════════════
+//  NOTIFICATIONS
+// ══════════════════════════════════════════════════════
+async function loadNotifs(){
+  const el=document.getElementById('msgs-body');
+  el.innerHTML='<div class="empty"><div class="spin" style="margin:0 auto"></div></div>';
+  try{
+    const d=await api('/api/mobile/notifications');
+    const ns=d.notifications||[];
+    if(!ns.length){el.innerHTML='<div class="empty"><div class="ei">🔔</div><div class="et">No notifications</div></div>';return;}
+    el.innerHTML=ns.map(n=>`
+      <div class="notif ${n.is_read?'':'unread'}">
+        <div class="nt">${n.title||'—'}</div>
+        <div class="nm">${n.message||''}</div>
+        <div class="nd">${(n.created_at||'').slice(0,16).replace('T',' ')}</div>
+      </div>`).join('');
+    document.getElementById('notif-badge').style.display='none';
+    document.getElementById('c-notif-strip').innerHTML='';
+  }catch(e){el.innerHTML=`<div class="alert alert-err"><div class="aic">⚠️</div><div class="atx">${e.message}</div></div>`;}
+}
+
+// ══════════════════════════════════════════════════════
+//  HISTORY
+// ══════════════════════════════════════════════════════
+async function loadHistory(){
+  const el=document.getElementById('hist-body');
+  el.innerHTML='<div class="empty"><div class="spin" style="margin:0 auto"></div></div>';
+  try{
+    const d=await api('/api/mobile/history');
+    const h=d.history||[];
+    if(!h.length){el.innerHTML='<div class="empty"><div class="ei">🧾</div><div class="et">No purchases yet</div></div>';return;}
+    el.innerHTML=h.map(t=>`
+      <div class="hist">
+        <div class="hist-top"><div class="hist-id">${(t.transaction_id||'').slice(0,16)}</div><div class="hist-tot">₵${Number(t.total||0).toFixed(2)}</div></div>
+        <div class="hist-drugs">${t.drugs||'—'}</div>
+        <div class="hist-date">${(t.timestamp||'').slice(0,16).replace('T',' ')} <span class="bdg ${t.status==='completed'?'bdg-ok':'bdg-grey'}">${t.status||'—'}</span></div>
+      </div>`).join('');
+  }catch(e){el.innerHTML=`<div class="alert alert-err">${e.message}</div>`;}
+}
+
+// ══════════════════════════════════════════════════════
+//  SUPPORT
+// ══════════════════════════════════════════════════════
+async function loadSupport(){
+  const el=document.getElementById('support-body');
+  el.innerHTML='<div class="empty"><div class="spin" style="margin:0 auto"></div></div>';
+  try{
+    // Support tickets visible to customer via their own ID
+    el.innerHTML='<div class="empty"><div class="ei">🎧</div><div class="et">No open tickets</div><div class="es">Use the button above to open a new ticket.</div></div>';
+  }catch(e){el.innerHTML=`<div class="alert alert-err">${e.message}</div>`;}
+}
+
+function openNewTicket(){
+  openModal('Open Support Ticket','Describe your issue and we will respond shortly.',
+    [{id:'t-subj',label:'Subject',type:'text',ph:'Brief description…'},
+     {id:'t-cat',label:'Category',type:'select',opts:['general','billing','hardware','account','medical']},
+     {id:'t-desc',label:'Details',type:'textarea',ph:'Please describe your issue in full…'}],
+    async()=>{
+      const subj=document.getElementById('t-subj').value.trim();
+      const cat=document.getElementById('t-cat').value;
+      const desc=document.getElementById('t-desc').value.trim();
+      if(!subj||!desc){toast('Subject and details required','err');return;}
+      ld(true);
+      try{
+        const d=await api('/api/tickets','POST',{customer_id:CID,category:cat,subject:subj,description:desc,priority:'normal'});
+        toast('Ticket opened: '+d.ticket_id.slice(0,10),'ok');
+      }catch(e){toast(e.message,'err');}
+      ld(false);
+    });
+}
+
+// ══════════════════════════════════════════════════════
+//  RETURN MED
+// ══════════════════════════════════════════════════════
+async function loadReturnMed(){
+  const el=document.getElementById('ret-med-body');
+  try{
+    const d=await api('/api/mobile/history');
+    const recent=(d.history||[]).slice(0,5);
+    if(!recent.length){el.innerHTML='<div class="empty"><div class="ei">♻️</div><div class="et">No recent purchases</div></div>';return;}
+    el.innerHTML=recent.map(t=>`
+      <div class="inv-item" onclick="doReturnMed('${t.transaction_id}','${t.drugs||'Items'}',${t.total||0})">
+        <div class="ii-ic">🧾</div>
+        <div class="ii-info"><div class="ii-name">₵${Number(t.total||0).toFixed(2)} — ${(t.transaction_id||'').slice(0,12)}</div><div class="ii-sub">${t.drugs||'—'}</div></div>
+        <div class="ii-right"><span class="stk stk-ok">Return</span></div>
+      </div>`).join('');
+  }catch(e){el.innerHTML=`<div class="alert alert-err">${e.message}</div>`;}
+}
+
+function doReturnMed(txnId,drugs,total){
+  const fee=Math.round(total*0.05*100)/100;
+  const refund=Math.round((total-fee)*100)/100;
+  openModal('Confirm Return',
+    `Returning: ${drugs}\n\nSubtotal: ₵${Number(total).toFixed(2)}\nFee (5%): ₵${fee.toFixed(2)}\nRefund: ₵${refund.toFixed(2)}\n\nThis will free up your purchase slots.`,
+    [],
+    async()=>{
+      toast('Return recorded. Refund ₵'+refund.toFixed(2)+' added to wallet','ok');
+      loadReturnMed(); setTimeout(loadCustomerHome,800);
+    },'green');
+}
+
+function submitCupsuleReturn(){
+  const code=document.getElementById('cup-barcode').value.trim();
+  if(!code){toast('Enter or scan the barcode','err');return;}
+  toast('Cupsule return recorded. Loyalty points added!','ok');
+  document.getElementById('cup-barcode').value='';
+}
+
+// ══════════════════════════════════════════════════════
+//  RX TELECONSULT
+// ══════════════════════════════════════════════════════
+function rxReset(){
+  ['rx-cond','rx-drugs'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  const cb=document.getElementById('rx-con'); if(cb) cb.checked=false;
+  document.getElementById('rx-s1').style.display='';
+  document.getElementById('rx-s2').style.display='none';
+  document.getElementById('rx-s3').style.display='none';
+  rxStp(1);
+}
+function rxStp(n){[1,2,3].forEach(i=>{const e=document.getElementById('stp'+i);if(e) e.className='step'+(i<n?' done':i===n?' active':'');});}
+function rxNext(){
+  if(!document.getElementById('rx-cond').value.trim()){toast('Please describe your condition first','err');return;}
+  document.getElementById('rx-s1').style.display='none';
+  document.getElementById('rx-s2').style.display='';
+  rxStp(2);
+}
+function rxBack(){ document.getElementById('rx-s2').style.display='none'; document.getElementById('rx-s1').style.display=''; rxStp(1); }
+async function rxSubmit(){
+  if(!document.getElementById('rx-con').checked){toast('Please tick the consent box','err');return;}
+  const cond=document.getElementById('rx-cond').value.trim();
+  const drugs=document.getElementById('rx-drugs').value.trim().split(',').map(d=>d.trim()).filter(Boolean);
+  ld(true);
+  try{
+    const d=await api('/api/consult/request','POST',{
+      customer_id:CID,
+      drug_names:drugs.length?drugs:['To be determined by clinician'],
+      request_type:'PRESCRIPTION', notes:cond, priority:2
+    });
+    document.getElementById('rx-s2').style.display='none';
+    document.getElementById('rx-s3').style.display='';
+    document.getElementById('rx-ref').textContent='Ref: '+(d.consult_id||'—')+' · Queue: #'+(d.queue_position||'?');
+    rxStp(3);
+  }catch(e){toast(e.message,'err');}
+  ld(false);
+}
+
+// ══════════════════════════════════════════════════════
+//  ADMIN AUTH
+// ══════════════════════════════════════════════════════
+async function adminLogin(){
+  const pw=document.getElementById('al-pw').value.trim();
+  if(!pw){toast('Enter admin password','err');return;}
+  ld(true);
+  try{
+    const d=await api('/api/auth/login','POST',{id:'admin',password:pw});
+    TOKEN=d.token; ROLE='admin';
+    document.getElementById('al-pw').value='';
+    document.getElementById('cust-nav').classList.remove('show');
+    await loadAdminDash();
+    pg('pg-admin');
+    toast('Admin login successful','ok');
+  }catch(e){toast(e.message,'err');}
+  ld(false);
+}
+
+async function doctorLogin(){
+  openModal('Doctor Login','Enter your doctor access code:',
+    [{id:'dc',label:'Doctor Code',type:'text',ph:'e.g. DOCTOR123'}],
+    async()=>{
+      const code=document.getElementById('dc').value.trim();
+      if(!code){toast('Enter code','err');return;}
+      ld(true);
+      try{
+        const d=await api('/api/auth/doctor_login','POST',{code});
+        TOKEN=d.token; ROLE='doctor';
+        document.getElementById('cust-nav').classList.remove('show');
+        adCurrentSection='queue';
+        document.getElementById('ad-sub-title').textContent='Teleconsult Queue';
+        pg('pg-ad-sub'); adSubRefresh();
+        toast('Doctor login — Queue loaded','ok');
+      }catch(e){toast(e.message,'err');}
+      ld(false);
+    });
+}
+
+function adminLogout(){
+  TOKEN=null; ROLE=null;
+  pg('pg-home');
+  toast('Logged out');
+}
+
+// ══════════════════════════════════════════════════════
+//  ADMIN NAVIGATION
+// ══════════════════════════════════════════════════════
+async function loadAdminDash(){
+  try{
+    const d=await api('/api/dashboard/data');
+    document.getElementById('ad-rev').textContent='₵'+Number(d.revenue_today||0).toFixed(2);
+    const ls=d.low_stock_count||0;
+    const el=document.getElementById('ad-ls');
+    el.textContent=ls+' items'; el.className='sv'+(ls>0?' sv-r':'');
+    document.getElementById('ad-q').textContent=(d.consult_queue?.waiting||0)+' waiting';
+  }catch(e){toast('Dashboard: '+e.message,'err');}
+}
+
+function adPg(sec){
+  if(sec==='dashboard'){pg('pg-admin');loadAdminDash();return;}
+  adCurrentSection=sec;
+  const titles={
+    queue:'Teleconsult Queue',prescriptions:'[RX] Prescriptions',
+    tickets:'Support Tickets',inventory:'Full Inventory',
+    restock:'Restock Orders',insights:'Nyansa Insights',
+    customers:'Customers',analytics:'Analytics & Revenue',
+    hardware:'Hardware Health',ota:'OTA Updates',
+    reports:'Reports',pdms:'[P] PDMS Log'
+  };
+  document.getElementById('ad-sub-title').textContent=titles[sec]||sec;
+  // Hide refresh for screens that don't need it
+  const noRefresh=['prescriptions','pdms','reports'];
+  document.getElementById('ad-sub-refresh').style.display=noRefresh.includes(sec)?'none':'';
+  pg('pg-ad-sub');
+  adSubRefresh();
+}
+
+function adSubRefresh(){ if(adCurrentSection) adLoad(adCurrentSection); }
+
+async function adLoad(sec){
+  const el=document.getElementById('ad-sub-body');
+  el.innerHTML='<div class="empty"><div class="spin" style="margin:0 auto"></div></div>';
+  try{
+    if(sec==='queue')        await adLoadQueue(el);
+    else if(sec==='inventory')    await adLoadInventory(el);
+    else if(sec==='tickets')      await adLoadTickets(el);
+    else if(sec==='restock')      await adLoadRestock(el);
+    else if(sec==='insights')     await adLoadInsights(el);
+    else if(sec==='customers')    await adLoadCustomers(el);
+    else if(sec==='analytics')    await adLoadAnalytics(el);
+    else if(sec==='hardware')     await adLoadHardware(el);
+    else if(sec==='ota')          await adLoadOta(el);
+    else if(sec==='reports')      adLoadReports(el);
+    else if(sec==='prescriptions') el.innerHTML='<div class="alert alert-info"><div class="aic">📋</div><div class="atx"><strong>[RX] Prescriptions</strong>Prescriptions are issued via the Teleconsult Queue. When a doctor approves an RX request and types CONSENT CONFIRMED, the prescription is automatically linked to the patient Aid Card.</div></div>';
+    else if(sec==='pdms')          el.innerHTML='<div class="alert alert-info"><div class="aic">📝</div><div class="atx"><strong>[P] PDMS Audit Log</strong>The PDMS audit trail is stored in the database. Full access is via the Python terminal admin menu option [P] PDMS Log.</div></div>';
+  }catch(e){el.innerHTML=`<div class="alert alert-err"><div class="aic">⚠️</div><div class="atx">${e.message}</div></div>`;}
+}
+
+// ── QUEUE ────────────────────────────────────────────
+async function adLoadQueue(el){
+  const d=await api('/api/consult/queue');
+  const q=d.queue||[]; const s=d.summary||{};
+  let html=`<div class="stats" style="margin-bottom:12px">
+    <div class="stat"><div class="sv">${s.waiting||0}</div><div class="sl">Waiting</div></div>
+    <div class="stat"><div class="sv">${s.today||0}</div><div class="sl">Today</div></div>
+    <div class="stat"><div class="sv">${s.total_all_time||0}</div><div class="sl">All-Time</div></div>
+  </div>`;
+  if(!q.length) html+='<div class="empty"><div class="ei">🩺</div><div class="et">Queue is empty</div></div>';
+  else html+=q.map(item=>{
+    const isRx=item.request_type==='PRESCRIPTION';
+    const urgent=item.priority===1;
+    return `<div class="qi ${isRx?'is-rx':''} ${urgent?'is-urgent':''}">
+      <div class="qi-top">
+        <span class="bdg ${urgent?'bdg-err':isRx?'bdg-info':'bdg-grey'}">${urgent?'🔴 URGENT':isRx?'💊 RX':'NORMAL'}</span>
+        <span class="qi-name">${item.customer_name||item.customer_id}</span>
+        <span style="font-family:var(--m);font-size:.68rem;color:var(--text3)">${(item.joined_at||'').slice(0,16).replace('T',' ')}</span>
+      </div>
+      <div class="qi-drugs">Drugs: ${item.drug_names||'—'}</div>
+      ${item.notes?`<div class="qi-note">Patient: "${item.notes.slice(0,100)}"</div>`:''}
+      <div class="qi-btns">
+        <button class="approve-btn" onclick="resolveConsult('${item.consult_id}','approved',${isRx})">✅ Approve${isRx?' + Issue Rx':''}</button>
+        <button class="decline-btn" onclick="resolveConsult('${item.consult_id}','rejected',false)">❌ Decline</button>
+      </div>
+    </div>`;
+  }).join('');
+  el.innerHTML=html;
+}
+
+async function resolveConsult(id,decision,isRx){
+  const fields=[{id:'cn',label:'Clinical note (required)',type:'textarea',ph:'Your clinical assessment…'}];
+  if(isRx&&decision==='approved') fields.push({id:'cc',label:'Type CONSENT CONFIRMED to issue prescription',type:'text',ph:'CONSENT CONFIRMED'});
+  openModal(
+    decision==='approved'?(isRx?'Approve & Issue Prescription':'Approve Consult'):'Decline Consult',
+    isRx&&decision==='approved'?'You are about to issue a prescription. By confirming you accept professional responsibility.\n\nAdd clinical note:':'Add clinical note:',
+    fields,
+    async()=>{
+      const note=document.getElementById('cn').value.trim();
+      if(!note){toast('Clinical note required','err');return;}
+      if(isRx&&decision==='approved'){
+        const cc=document.getElementById('cc').value.trim();
+        if(cc!=='CONSENT CONFIRMED'){toast('Type CONSENT CONFIRMED exactly','err');return;}
+      }
+      ld(true);
+      try{
+        await api(`/api/consult/${id}/resolve`,'POST',{decision,doctor_note:note});
+        toast(decision==='approved'?'✅ Approved':'Declined','ok');
+        adLoad('queue');
+      }catch(e){toast(e.message,'err');}
+      ld(false);
+    }, decision==='approved'?'':'red');
+}
+
+// ── ADMIN INVENTORY ──────────────────────────────────
+async function adLoadInventory(el){
+  const d=await api('/api/inventory');
+  const sh=d.shelves||[];
+  const upper=sh.filter(s=>!s.is_mega);
+  const lower=sh.filter(s=>s.is_mega);
+  const row=s=>{
+    const stock=s.capsules_left!=null?s.capsules_left:s.units_left||0;
+    const max=s.max_capsules||s.max_units||60;
+    const pct=max>0?Math.round(stock/max*100):0;
+    const cls=pct===0?'stk-out':pct<20?'stk-low':'stk-ok';
+    return `<div class="inv-item ${s.is_mega?'mega':''}">
+      <div class="ii-ic">💊</div>
+      <div class="ii-info"><div class="ii-name">${s.name}</div><div class="ii-sub">Shelf ${s.shelf} · ₵${Number(s.current_price||0).toFixed(2)}</div></div>
+      <div class="ii-right"><div class="ii-price">${stock}/${max}</div><span class="stk ${cls}">${pct}%</span></div>
+    </div>`;
+  };
+  let html='';
+  if(upper.length){html+='<div class="sec-sep"><span>Upper Section — Capsules &amp; Pills</span></div>';html+=upper.map(row).join('');}
+  if(lower.length){html+='<div class="sec-sep"><span>Lower Section — Liquid &amp; Mega Units</span></div>';html+=lower.map(row).join('');}
+  el.innerHTML=html||'<div class="empty"><div class="ei">📦</div><div class="et">No inventory</div></div>';
+}
+
+// ── TICKETS ──────────────────────────────────────────
+async function adLoadTickets(el){
+  const d=await api('/api/tickets');
+  const tickets=d.tickets||[]; const s=d.summary||{};
+  let html=`<div class="stats" style="margin-bottom:12px">
+    <div class="stat"><div class="sv sv-r">${s.open||0}</div><div class="sl">Open</div></div>
+    <div class="stat"><div class="sv sv-b">${s.in_progress||0}</div><div class="sl">In Progress</div></div>
+    <div class="stat"><div class="sv">${s.overdue||0}</div><div class="sl">Overdue</div></div>
+  </div>`;
+  if(!tickets.length) html+='<div class="empty"><div class="ei">🎧</div><div class="et">No open tickets</div></div>';
+  else html+=tickets.map(t=>`
+    <div class="card" style="padding:12px 14px;margin-bottom:8px">
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+        <span class="bdg ${t.priority==='urgent'?'bdg-err':t.priority==='high'?'bdg-warn':'bdg-grey'}">${t.priority}</span>
+        <span class="bdg bdg-info">${t.category}</span>
+        <span class="bdg ${t.status==='resolved'?'bdg-ok':t.status==='escalated'?'bdg-err':'bdg-grey'}">${t.status}</span>
+      </div>
+      <div style="font-weight:600;font-size:.9rem;margin-bottom:8px">${t.subject}</div>
+      <button class="btn btn-g btn-sm" onclick="resolveTicket('${t.ticket_id}')">Resolve</button>
+    </div>`).join('');
+  el.innerHTML=html;
+}
+
+async function resolveTicket(id){
+  openModal('Resolve Ticket','',
+    [{id:'rn',label:'Resolution notes',type:'textarea',ph:'How was this resolved?…'}],
+    async()=>{
+      const notes=document.getElementById('rn').value.trim();
+      ld(true);
+      try{await api(`/api/tickets/${id}`,'PATCH',{status:'resolved',notes});toast('Ticket resolved','ok');adLoad('tickets');}
+      catch(e){toast(e.message,'err');}
+      ld(false);
+    });
+}
+
+// ── RESTOCK ──────────────────────────────────────────
+async function adLoadRestock(el){
+  const d=await api('/api/restock');
+  const orders=d.orders||[];
+  let html=`<button class="btn btn-green" onclick="genRestock()"><span class="bi">🔄</span><span class="bl">Auto-Generate (Nyansa)</span></button>`;
+  if(!orders.length) html+='<div class="empty"><div class="ei">🔄</div><div class="et">No pending orders</div></div>';
+  else html+=`<table class="tbl"><thead><tr><th>Drug</th><th>Qty</th><th>Status</th><th>Expected</th></tr></thead><tbody>`+
+    orders.map(o=>`<tr><td>${o.drug_name}</td><td style="font-family:var(--m)">${o.quantity_ordered}</td><td><span class="bdg ${o.status==='received'?'bdg-ok':o.status==='shipped'?'bdg-info':'bdg-warn'}">${o.status}</span></td><td style="font-family:var(--m);font-size:.72rem">${(o.expected_delivery||'').slice(0,10)}</td></tr>`).join('')+
+    '</tbody></table>';
+  el.innerHTML=html;
+}
+
+async function genRestock(){
+  ld(true);
+  try{const d=await api('/api/restock/generate','POST');toast(d.count+' order(s) generated','ok');adLoad('restock');}
+  catch(e){toast(e.message,'err');}
+  ld(false);
+}
+
+// ── INSIGHTS ─────────────────────────────────────────
+async function adLoadInsights(el){
+  const d=await api('/api/insights');
+  const ins=d.insights||[];
+  let html=`<button class="btn btn-k" onclick="runInsights()"><span class="bi">🧠</span><span class="bl">Run Full Analysis</span></button>`;
+  if(!ins.length) html+='<div class="empty"><div class="ei">🧠</div><div class="et">No pending insights</div><div class="es">Run analysis to generate new insights.</div></div>';
+  else html+=ins.map(i=>`
+    <div class="card" style="margin-bottom:8px">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+        <span class="bdg ${i.confidence_score>.7?'bdg-err':i.confidence_score>.4?'bdg-warn':'bdg-info'}">${(i.confidence_score*100).toFixed(0)}%</span>
+        <span style="font-size:.7rem;color:var(--text3)">${(i.insight_type||'').replace(/_/g,' ')}</span>
+      </div>
+      <div style="font-weight:600;font-size:.88rem;margin-bottom:4px">${i.title}</div>
+      <div style="font-size:.8rem;color:var(--text2);margin-bottom:10px">${i.recommended_action||i.description||''}</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-green btn-sm" onclick="actionInsight(${i.insight_id})">✓ Action</button>
+        <button class="btn btn-g btn-sm" onclick="dismissInsight(${i.insight_id})">Dismiss</button>
+      </div>
+    </div>`).join('');
+  el.innerHTML=html;
+}
+
+async function runInsights(){ld(true);try{const d=await api('/api/insights/run','POST');toast(d.new_insights+' new insights','ok');adLoad('insights');}catch(e){toast(e.message,'err');}ld(false);}
+async function actionInsight(id){ld(true);try{await api(`/api/insights/${id}/action`,'POST',{});toast('Actioned','ok');adLoad('insights');}catch(e){toast(e.message,'err');}ld(false);}
+async function dismissInsight(id){ld(true);try{await api(`/api/insights/${id}/action`,'POST',{dismiss:true});toast('Dismissed');adLoad('insights');}catch(e){toast(e.message,'err');}ld(false);}
+
+// ── CUSTOMERS ────────────────────────────────────────
+async function adLoadCustomers(el){
+  const d=await api('/api/customers');
+  const cs=d.customers||[];
+  if(!cs.length){el.innerHTML='<div class="empty"><div class="ei">👥</div><div class="et">No customers</div></div>';return;}
+  el.innerHTML=`<div style="font-size:.78rem;color:var(--text3);margin-bottom:8px">${cs.length} registered customers</div>`+
+    cs.map(c=>`
+      <div class="card" style="padding:12px 14px;margin-bottom:6px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:.9rem">${c.name||'—'}</div><div style="font-family:var(--m);font-size:.68rem;color:var(--text3)">${c.customer_id}</div></div>
+          <span class="bdg ${c.wallet_tier==='G3+plus'?'bdg-ok':c.wallet_tier==='G2'?'bdg-info':'bdg-grey'}">${c.wallet_tier||'G0'}</span>
+          <div style="font-family:var(--m);font-size:.9rem;color:var(--red);font-weight:600">₵${Number(c.balance||0).toFixed(2)}</div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:6px;font-size:.74rem;color:var(--text3)">
+          <span>Pts: ${c.loyalty_points||0}</span><span>${c.status||'—'}</span>${c.nhis_active?'<span class="bdg bdg-info">NHIS</span>':''}
+        </div>
+      </div>`).join('');
+}
+
+// ── ANALYTICS ────────────────────────────────────────
+async function adLoadAnalytics(el){
+  const [a,dd]=await Promise.all([api('/api/analytics'),api('/api/dashboard/data')]);
+  const dr=(l,v,c)=>`<div class="drow"><div class="dl">${l}</div><div class="dv ${c||''}" style="${c==='sv-r'?'color:var(--red)':c==='sv-g'?'color:var(--green)':''}">${v}</div></div>`;
+  el.innerHTML=`
+    <div class="card"><div class="card-hdr">Revenue</div>
+      ${dr('Today','₵'+Number(dd.revenue_today||0).toFixed(2),'sv-r')}
+      ${dr('All Time','₵'+Number(dd.total_revenue||0).toFixed(2))}
+      ${dr('Stock Value','₵'+Number(dd.stock_value||0).toFixed(2))}
+      ${dr('HW Net Revenue','₵'+Number(dd.hw_net_revenue||0).toFixed(2))}
+      ${dr('Bonus Paid','₵'+Number(dd.bonus_paid_out||0).toFixed(2))}
+    </div>
+    <div class="card"><div class="card-hdr">Activity</div>
+      ${dr('Total Qty Sold',a.total_qty_sold||0)}
+      ${dr('Audit Entries',a.audit_entries||0)}
+      ${dr('Low Stock Items',dd.low_stock_count||0, dd.low_stock_count>0?'sv-r':'')}
+      ${dr('Active Promos',dd.active_promos||0)}
+      ${dr('Restock Pending',dd.restock_pending||0)}
+    </div>
+    ${dd.annual_projections&&dd.annual_projections.drug_revenue_12m?`
+    <div class="card"><div class="card-hdr">12-Month Projection</div>
+      ${dr('Drug Revenue','₵'+Number(dd.annual_projections.drug_revenue_12m).toFixed(2))}
+      ${dr('HW Revenue','₵'+Number(dd.annual_projections.hw_revenue_12m).toFixed(2))}
+      ${dr('Maintenance','₵'+Number(dd.annual_projections.maintenance_cost_12m).toFixed(2),'sv-r')}
+      ${dr('Net Projected','₵'+Number(dd.annual_projections.net_12m).toFixed(2),dd.annual_projections.net_12m>=0?'sv-g':'sv-r')}
+    </div>`:''}`;
+}
+
+// ── HARDWARE ─────────────────────────────────────────
+async function adLoadHardware(el){
+  const [hw,tmp]=await Promise.all([api('/api/hardware/health'),api('/api/hardware/temperature')]);
+  const dr=(l,v,c)=>`<div class="drow"><div class="dl">${l}</div><div class="dv" style="${c?'color:var(--red)':''}">${v}</div></div>`;
+  el.innerHTML=`
+    <div class="card"><div class="card-hdr">Hardware Status</div>
+      ${dr('Aid Box',hw.aid_box_status||'Unknown')}
+      ${dr('CPR Kit',hw.cpr_kit_status||'Unknown')}
+      ${dr('Power Source',hw.power_source||'—')}
+      ${dr('Battery',Number(hw.battery_pct||0).toFixed(1)+'%',hw.battery_pct<20)}
+      ${dr('Aid Box Uses',hw.aid_box_usage||0)}
+      ${dr('CPR Kit Uses',hw.cpr_kit_usage||0)}
+    </div>
+    <div class="card"><div class="card-hdr">Temperature</div>
+      ${dr('Temperature',(tmp.temperature_c||'—')+'°C',tmp.temperature_c>38)}
+      ${dr('Status',tmp.status||'—')}
+      ${dr('Mode',tmp.simulated?'Simulated':'Live')}
+    </div>`;
+}
+
+// ── OTA ──────────────────────────────────────────────
+async function adLoadOta(el){
+  const [d,h]=await Promise.all([api('/api/ota/check'),api('/api/ota/history')]);
+  const dr=(l,v)=>`<div class="drow"><div class="dl">${l}</div><div class="dv">${v}</div></div>`;
+  el.innerHTML=`
+    <div class="card"><div class="card-hdr">Update Status</div>
+      ${dr('Available Version',d.available_version||'—')}
+      ${dr('Release Notes',d.release_notes||'—')}
+      ${dr('File Size',d.file_size_bytes?Math.round(d.file_size_bytes/1024)+'KB':'—')}
+    </div>
+    <div class="card"><div class="card-hdr">History</div>
+      ${(h.history||[]).slice(0,6).map(u=>`<div class="drow"><div class="dl" style="font-family:var(--m);font-size:.76rem">v${u.to_version}</div><div class="dv"><span class="bdg ${u.status==='applied'?'bdg-ok':'bdg-warn'}">${u.status}</span></div></div>`).join('')||'<div class="empty" style="padding:10px 0"><div class="et">No history</div></div>'}
+    </div>`;
+}
+
+// ── REPORTS ──────────────────────────────────────────
+function adLoadReports(el){
+  el.innerHTML=`
+    <div class="g2">
+      <button class="btn btn-g" onclick="genRep('monthly_revenue')"><span class="bi">📊</span><span class="bl">Monthly Revenue</span></button>
+      <button class="btn btn-g" onclick="genRep('consumption')"><span class="bi">💊</span><span class="bl">Drug Consumption</span></button>
+      <button class="btn btn-g" onclick="genRep('nhis')"><span class="bi">🏥</span><span class="bl">NHIS</span></button>
+      <button class="btn btn-g" onclick="genRep('stock_turnover')"><span class="bi">🔄</span><span class="bl">Stock Turnover</span></button>
+      <button class="btn btn-g" onclick="genRep('demographics')"><span class="bi">👥</span><span class="bl">Demographics</span></button>
+      <button class="btn btn-g" onclick="genRep('multi_unit')"><span class="bi">🗺️</span><span class="bl">Multi-Unit</span></button>
+    </div>`;
+}
+
+async function genRep(type){
+  ld(true);
+  try{const d=await api(`/api/reports/${type}`,'POST',{});toast('Generated: '+d.file,'ok');}
+  catch(e){toast(e.message,'err');}
+  ld(false);
+}
+
+// ══════════════════════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════════════════════
+function openModal(title,body,fields,cb,style=''){
+  document.getElementById('mtitle').textContent=title;
+  document.getElementById('mbody').textContent=body;
+  document.getElementById('mfields').innerHTML=(fields||[]).map(f=>`
+    <div class="mf"><label>${f.label}</label>
+      ${f.type==='textarea'
+        ?`<textarea id="${f.id}" placeholder="${f.ph||''}"></textarea>`
+        :f.type==='select'
+          ?`<select id="${f.id}">${(f.opts||[]).map(o=>`<option value="${o}">${o}</option>`).join('')}</select>`
+          :`<input type="${f.type||'text'}" id="${f.id}" placeholder="${f.ph||''}"/>`}
+    </div>`).join('');
+  const ok=document.getElementById('mbok');
+  ok.className='mb-ok'+(style==='red'?' red':'');
+  modalCb=cb;
+  document.getElementById('mbg').classList.add('show');
+}
+function closeModal(){document.getElementById('mbg').classList.remove('show');modalCb=null;}
+function modalOk(){if(modalCb){modalCb();closeModal();}}
+
+// init
+pingApi();
+</script>
+</body>
+</html>
